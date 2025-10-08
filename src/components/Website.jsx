@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef,useEffect } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import Footer from "./Footer";
 
@@ -23,63 +23,74 @@ const AnimatedContent = ({ children, delay = 0 }) => {
 
 
 
+
 const ProductModal = ({ product, onClose }) => {
-    return (
-      <AnimatePresence>
-        {/* Only render if product is selected */}
-        {product && (
-          // Backdrop
+  // Disable background scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = product ? "hidden" : "auto";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [product]);
+
+  return (
+    <AnimatePresence>
+      {product && (
+        // Backdrop with blur
+        <motion.div
+          className="fixed inset-0 flex justify-center items-center z-50 p-4 bg-white/10 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose} // Close when clicking outside modal
+        >
+          {/* Modal Content */}
           <motion.div
-            className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose} // Close when clicking the backdrop
+            className="bg-white rounded-2xl p-8 shadow-2xl max-w-lg w-full text-center relative"
+            initial={{ scale: 0.7, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
           >
-            {/* Modal Content */}
-            <motion.div
-              className="bg-white rounded-2xl p-8 shadow-2xl max-w-lg w-full text-center relative"
-              initial={{ scale: 0.7, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
+            <button
+              onClick={onClose}
+              aria-label="Close modal"
+              className="absolute top-3 right-4 text-gray-500 hover:text-black text-3xl font-light transition-colors"
             >
-              <button
-                onClick={onClose}
-                aria-label="Close modal"
-                className="absolute top-3 right-4 text-gray-500 hover:text-black text-3xl font-light transition-colors"
+              &times;
+            </button>
+            <img
+              src={`https://placehold.co/400x250/3b82f6/ffffff?text=${encodeURIComponent(product.name)}`}
+              alt={product.name}
+              className="rounded-xl mb-6 mx-auto w-full max-w-xs sm:max-w-md shadow-lg"
+            />
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-3">{product.name}</h2>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              {product.description || "This is a sample product description that you can customize."}
+            </p>
+            <div className="flex justify-center space-x-4">
+              <button 
+                className="bg-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-700 transition transform hover:scale-105 shadow-md"
               >
-                &times;
+                Buy Now (${(Math.random() * 100 + 10).toFixed(2)})
               </button>
-              <img
-                src={`https://placehold.co/400x250/3b82f6/ffffff?text=${encodeURIComponent(product.name)}`}
-                alt={product.name}
-                className="rounded-xl mb-6 mx-auto w-full max-w-xs sm:max-w-md shadow-lg"
-              />
-              <h2 className="text-3xl font-extrabold text-gray-900 mb-3">{product.name}</h2>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                {product.description || "This is a sample product description that you can customize."}
-              </p>
-              <div className="flex justify-center space-x-4">
-                <button 
-                  className="bg-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-700 transition transform hover:scale-105 shadow-md"
-                >
-                  Buy Now (${(Math.random() * 100 + 10).toFixed(2)})
-                </button>
-                <button 
-                  onClick={onClose}
-                  className="bg-gray-200 text-gray-700 px-8 py-3 rounded-full font-semibold hover:bg-gray-300 transition"
-                >
-                  Go Back
-                </button>
-              </div>
-            </motion.div>
+              <button 
+                onClick={onClose}
+                className="bg-gray-200 text-gray-700 px-8 py-3 rounded-full font-semibold hover:bg-gray-300 transition"
+              >
+                Go Back
+              </button>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
-    );
-  };
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+
+
 
 
 const Website = () => {
